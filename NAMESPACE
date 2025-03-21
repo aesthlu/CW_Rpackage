@@ -1,0 +1,7 @@
+useDynLib(CWRpackage, .registration=TRUE)
+
+export(naive_pattern_matching)
+export(naive_pattern_matching_Rcpp)
+
+importFrom(Rcpp, evalCpp)
+
