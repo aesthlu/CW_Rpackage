@@ -111,9 +111,14 @@ List commentz_walter_cpp(std::string text, std::vector<std::string> patterns) {
   AhoCorasick ac(patterns);
   vector<pair<string, int>> matches = ac.search(text);
   
-  List result;
+  unordered_map<string, vector<int>> grouped_results;
   for (const auto& match : matches) {
-    result.push_back(List::create(Named("pattern") = match.first, Named("position") = match.second + 1));
+    grouped_results[match.first].push_back(match.second + 1);
+  }
+  
+  List result;
+  for (const auto& entry : grouped_results) {
+    result.push_back(List::create(Named("pattern") = entry.first, Named("positions") = entry.second));
   }
   
   return result;
