@@ -91,8 +91,3 @@ commentz_walter <- function(text, patterns) {
   ac_trie <- build_ac_trie(patterns)
   return(search(text, ac_trie))
 }
-
-# Exemple d'appel de la fonction
-text <- "abbabjjkherabbab"
-patterns <- c("abba", "bjj", "jjk", "she", "her")
-commentz_walter(text, patterns)
