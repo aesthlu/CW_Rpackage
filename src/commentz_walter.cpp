@@ -106,6 +106,13 @@ private:
   }
 };
 
+//' Commentz-Walter multiple pattern matching algorithm using C++
+//'
+//' @description Searches for all occurrences of multiple patterns in a given text using the Commentz-Walter algorithm, 
+//' which combines Boyer-Moore-like heuristics for efficient searching.
+//' @param text A character string representing the main text.
+//' @param patterns A character vector containing multiple patterns to search for.
+//' @return A list of integers indicating the starting positions of each match (1-based index).
 // [[Rcpp::export]]
 List commentz_walter_cpp(std::string text, std::vector<std::string> patterns) {
   AhoCorasick ac(patterns);
