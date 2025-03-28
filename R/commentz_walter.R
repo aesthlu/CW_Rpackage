@@ -1,6 +1,5 @@
 commentz_walter <- function(text, patterns) {
-  library(stringr)
-  
+
   build_ac_trie <- function(patterns) {
     trie <- list()
     fail <- list()

@@ -8,4 +8,5 @@ export(commentz_walter)
 export(commentz_walter_cpp)
 
 importFrom(Rcpp, evalCpp)
+import(stringr)
 

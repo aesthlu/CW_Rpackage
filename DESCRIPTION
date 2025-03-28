@@ -8,6 +8,6 @@ Maintainer: Vincent Runge <vincent.runge@univ-evry.fr>
 Description: Examples of sorting algrithms written in different languages : R and Rcpp. We also provide a simulation file evaluating the time complexity of these algorithms. The two available algorithm are intersion sort and heap sort, both of them in R en Rcpp.
 License: GPL-3
 Encoding: UTF-8
-Imports: Rcpp (>= 1.0.5)
+Imports: Rcpp (>= 1.0.5), stringr
 LinkingTo: Rcpp
 RoxygenNote: 7.3.2
