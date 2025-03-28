@@ -1,5 +1,5 @@
 commentz_walter <- function(text, patterns) {
-
+  
   build_ac_trie <- function(patterns) {
     trie <- list()
     fail <- list()
@@ -48,8 +48,11 @@ commentz_walter <- function(text, patterns) {
   }
   
   search <- function(text, ac_trie) {
-    matches <- list()
+    matches <- list()  # liste pour stocker les motifs et leurs positions
     state <- "root"
+    
+    # Créer une liste pour stocker toutes les positions par motif
+    result_list <- list()
     
     for (i in seq_along(unlist(strsplit(text, "")))) {
       char <- substr(text, i, i)
@@ -59,13 +62,30 @@ commentz_walter <- function(text, patterns) {
       state <- ifelse(char %in% names(ac_trie$trie[[state]]), ac_trie$trie[[state]][[char]], "root")
       
       if (state %in% names(ac_trie$output)) {
-        matches[[length(matches) + 1]] <- list(pattern = ac_trie$output[[state]], position = i - nchar(ac_trie$output[[state]]) + 1)
+        pattern_found <- ac_trie$output[[state]]
+        position <- i - nchar(pattern_found) + 1
+        
+        # Ajouter le motif et sa position à la liste des résultats
+        if (is.null(result_list[[pattern_found]])) {
+          result_list[[pattern_found]] <- list()
+        }
+        result_list[[pattern_found]] <- c(result_list[[pattern_found]], position)
       }
     }
     
-    matches
+    # Fusionner les résultats sous forme de liste
+    matches <- lapply(names(result_list), function(pattern) {
+      list(pattern = pattern, positions = result_list[[pattern]])
+    })
+    
+    return(matches)
   }
   
   ac_trie <- build_ac_trie(patterns)
-  search(text, ac_trie)
+  return(search(text, ac_trie))
 }
+
+# Exemple d'appel de la fonction
+text <- "abbabjjkherabbab"
+patterns <- c("abba", "bjj", "jjk", "she", "her")
+commentz_walter(text, patterns)
