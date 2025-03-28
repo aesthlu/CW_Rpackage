@@ -3,7 +3,7 @@ Type: Package
 Title: Commentz-Walter algorithm for pattern matching
 Version: 1.0
 Date: 2025-03-28
-Author: Léos Coutrot, Luc Xu, Richard Cheam
+Author: Léos Coutrot, Luc YAO, Richard Cheam
 Maintainer: Léos Coutrot <leos.coutrot@ensiie.eu>, Luc Yao <luc.yao@ensiie.eu>, Richard Cheam <richard.cheam@ensiie.eu>
 Description: Commentz-Walter pattern matching algrithms written in different languages : R and Rcpp. We also provide a simulation file evaluating the time complexity of these algorithms. 
 License: GPL-3
