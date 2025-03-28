@@ -5,5 +5,7 @@ export(naive_pattern_matching_Rcpp)
 
 export(commentz_walter)
 
+export(commentz_walter_cpp)
+
 importFrom(Rcpp, evalCpp)
 
