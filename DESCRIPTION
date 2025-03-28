@@ -1,11 +1,11 @@
 Package: CWRpackage
 Type: Package
-Title: Example of an Rcpp package with sorting algorithms
+Title: Commentz-Walter algorithm for pattern matching
 Version: 1.0
-Date: 2020-11-03
-Author: Vincent Runge
-Maintainer: Vincent Runge <vincent.runge@univ-evry.fr>
-Description: Examples of sorting algrithms written in different languages : R and Rcpp. We also provide a simulation file evaluating the time complexity of these algorithms. The two available algorithm are intersion sort and heap sort, both of them in R en Rcpp.
+Date: 2025-03-28
+Author: Léos Coutrot, Luc Xu, Richard Cheam
+Maintainer: Léos Coutrot <leos.coutrot@ensiie.eu>, Luc Xu <luc.xu@ensiie.eu>, Richard Cheam <richard.cheam@ensiie.eu>
+Description: Commentz-Walter pattern matching algrithms written in different languages : R and Rcpp. We also provide a simulation file evaluating the time complexity of these algorithms. 
 License: GPL-3
 Encoding: UTF-8
 Imports: Rcpp (>= 1.0.5), stringr
