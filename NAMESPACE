@@ -3,9 +3,8 @@ useDynLib(CWRpackage, .registration=TRUE)
 export(naive_pattern_matching)
 export(naive_pattern_matching_Rcpp)
 
-export(commentz_walter)
-
-export(commentz_walter_cpp)
+export(aho_corasick)
+export(aho_corasick_Rcpp)
 
 importFrom(Rcpp, evalCpp)
 import(stringr)
