@@ -1,7 +1,6 @@
-#' Commentz-Walter multiple pattern matching algorithm using R
+#' Aho-Corasick multiple pattern matching algorithm using R
 #'
-#' @description Searches for all occurrences of multiple patterns in a given text using the Commentz-Walter algorithm, 
-#' which combines Boyer-Moore-like heuristics for efficient searching.
+#' @description Searches for all occurrences of multiple patterns in a given text using the Aho-Corasick algorithm.
 #' @param text A character string representing the main text.
 #' @param patterns A character vector containing multiple patterns to search for.
 #' @return A list of integers indicating the starting positions of each match (1-based index).
