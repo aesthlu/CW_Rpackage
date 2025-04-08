@@ -59,7 +59,11 @@ void goodSuffixHeuristic(const std::string &pattern, std::vector<int> &goodSuffi
     goodSuffix[m - 1 - suffix[i]] = m - 1 - i;
   }
 }
-
+//' Boyer-Moore pattern matching algorithm using R
+//' @description Searches for all occurrences of the pattern in a given text using the Boyer-Moore algorithm.
+//' @param text A character string representing the main text.
+//' @param pattern A character vector containing a single patterns to search for.
+//' @return A list of integers indicating the starting positions of each match (1-based index).
 // [[Rcpp::export]]
 std::vector<int> boyer_moore_search_Rcpp(std::string text, std::string pattern) {
   int n = text.size();
