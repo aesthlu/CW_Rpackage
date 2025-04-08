@@ -11,4 +11,4 @@ export(boyer_moore_search_R)
 
 importFrom(Rcpp, evalCpp)
 import(stringr)
-
+import(testthat)

@@ -8,6 +8,6 @@ Maintainer: Léos Coutrot <leos.coutrot@ensiie.eu>, Luc Yao <luc.yao@ensiie.eu>,
 Description: Commentz-Walter pattern matching algrithms written in different languages : R and Rcpp. We also provide a simulation file evaluating the time complexity of these algorithms. 
 License: GPL-3
 Encoding: UTF-8
-Imports: Rcpp (>= 1.0.5), stringr
+Imports: Rcpp (>= 1.0.5), stringr, testthat
 LinkingTo: Rcpp
 RoxygenNote: 7.3.2
