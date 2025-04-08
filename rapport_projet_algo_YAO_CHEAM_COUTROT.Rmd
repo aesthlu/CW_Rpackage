@@ -1,0 +1,537 @@
+---
+title: 'Rapport de projet : Algorithmique'
+author: "Luc YAO, Richard CHEAM, Léos Coutrot"
+date: "2025-04-06"
+output:
+  pdf_document: default
+  html_document: default
+---
+```{r, echo=FALSE}
+library(ggplot2)
+```
+
+
+# Introduction 
+
+Ce projet a pour objectif principal de construire un package R et de mettre en place des algorithmes de pattern matching dans le traitement de grandes tailles de texte. Plus précisément, nous avons été amenés à implémenter et comparer différents algorithmes de pattern matching avec leur compléxité temporelle. Ce problème joue un rôle important en traitement de l’information surtout en bioinformatique avec les données de séquençage. 
+
+```{r}
+library(CWRpackage)
+```
+
+
+# Présentation du problème : Pattern matching
+
+Le pattern matching, ou recherche de motifs, est une tâche algorithmique classique qui consiste à détecter la ou les occurrences d’une ou plusieurs chaînes de caractères (motifs) dans un texte plus long. Ce problème, en apparence simple, est en réalité d’une importance cruciale dans de nombreux domaines de l’informatique et du traitement de l’information.
+
+Dans une formulation mathématique, on a :
+
+\begin{itemize}
+  \item un texte $T$ de longueur $n$ : $T = t_1t_2 \dots t_n$ avec $t_i$ un charactère
+  \item un ensemble de motifs (patterns) $p$ de longeur $m$ : $P = \{ p_1, p_2, \dots , p_m \}$ où chaque $p_i$ est de longueur $m_i$
+\end{itemize}
+
+L'objectif est d'identifier pour chaque motif $p_i$ toutes les position $j$ dans le texte $T$ une sous-chaîne $T [j:(j+m_i-1) ]$ corresponde exactement à $p_i$.
+
+# Explication de la difficulté algorithmique
+
+La difficulté du problème découle de sa nature combinatoire. Plus précisément, étant donné un texte T de longueur n et un motif P de longueur m, il existe n - m + 1 positions potentielles dans le texte où le motif pourrait commencer. À chaque position, il faut vérifier si le motif correspond au sous-texte de cette position. Dans le pire des cas, le nombre total de comparaisons à effectuer est de $m \times (n-m+1)$. La complexité temporelle du problème peut croître rapidement lorsque n et m deviennent grands.
+
+L’algorithme naïf tentent une comparaison brutale entre chaque position du texte et le motif, ce qui fait qu’elles sont peu efficaces pour de grandes tailles d’entrée. Ainsi, le problème de pattern matching peut rapidement se transformer en un problème combinatoire complexe, notamment dans des applications comme la recherche de motifs dans des séquences biologiques, les moteurs de recherche, ou l’analyse de données textuelles.
+
+## Algorithme naïf
+
+L’algorithme naïf de pattern matching est une méthode brute qui compare le motif $p$ caractère par caractère avec chaque sous-chaîne du texte $T$. Pour chaque position $i$ du texte, on vérifie si les caractères du motif correspondent à ceux de la sous-chaîne correspondante dans le texte.
+
+
+```{r, echo=FALSE}
+# num_replacements << n 
+create_long_string <- function(n, num_replacements, dictionary) {
+  long_string <- paste0(sample(letters, n, replace = TRUE), collapse = "")
+  
+  # Generate positions with at least 8 characters apart
+  positions <- numeric(num_replacements)
+  positions[1] <- sample(1:(n - 5), 1)  # First position
+  
+  for (i in 2:num_replacements)
+  {
+    repeat 
+    {
+      pos <- sample(1:(n - 5), 1)  # Choose a random position
+      if (all(abs(pos - positions[1:(i-1)]) >= 8)) # Ensure distance >= 8
+      {  
+        positions[i] <- pos
+        break
+      }
+    }
+  }
+  positions <- sort(positions)
+  
+  # Replace substrings with dictionary words
+  for (i in 1:num_replacements)
+  {
+    start_pos <- positions[i]
+    word <- sample(dictionary, 1)  # Pick a random word
+    substr(long_string, start_pos, start_pos + nchar(word) - 1) <- word
+  }
+  
+  return(long_string)
+}
+```
+
+```{r}
+n <- 1000
+num_replacements <- 25
+dictionary <- c("cats", "dogs", "car", "distance")
+text <- create_long_string(n, num_replacements, dictionary)
+```
+
+```{r}
+naive_pattern_matching(text, "cats")
+```
+
+
+### Complexité théorique de l’algorithme naïf
+
+Pour un texte de longueur $n$ et un motif de logueur $m$, le nombre de position à tester est de $n-m+1$ et pour chaque position, il y a au plus $m$ comparaison à effectuer.
+
+Donc, la complexité totale est de $O(m \times (n - m + 1))$, soit approximativement \textbf{$O(mn)$}
+
+Cette approche est simple à comprendre et à implémenter, mais elle devient rapidement inefficace pour de grandes tailles de texte et de motifs, car le nombre d’opérations croît de manière quadratique.
+
+### Compléxité empirique de l’algorithme naïf
+
+```{r, echo=FALSE}
+test_naive_R <- function(n, num_replacements, dictionary) {
+  long_string <- create_long_string(n, num_replacements, dictionary)
+
+  start_time <- Sys.time()
+  matches <- naive_pattern_matching(long_string, dictionary)
+  end_time <- Sys.time()
+  return(end_time - start_time)
+}
+
+test_naive_Rcpp <- function(n, num_replacements, dictionary) {
+  long_string <- create_long_string(n, num_replacements, dictionary)
+
+  start_time <- Sys.time()
+  matches <- naive_pattern_matching_Rcpp(long_string, dictionary)
+  end_time <- Sys.time()
+  return(end_time - start_time)
+}
+```
+
+```{r, echo=FALSE}
+num_replacements <- 25
+dictionary <- "catanddogs"
+
+sizes <- seq(1000, 100000, by = 1000)
+results_naive_R <- sapply(sizes, function(size) {
+  test_naive_R(n = size, num_replacements, dictionary)
+})
+results_naive_Rcpp <- sapply(sizes, function(size) {
+  test_naive_Rcpp(n = size, num_replacements, dictionary)
+})
+
+result_df_naive_R <- data.frame(size = sizes, time_taken = results_naive_R)
+result_df_naive_Rcpp <- data.frame(size = sizes, time_taken = results_naive_Rcpp)
+
+
+# Tracer le graphe pour visualiser la linéarité
+ggplot(result_df_naive_R, aes(x = size, y = time_taken)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE, color = "blue") +
+  labs(title = "Temps d'exécution de l'algorithme naïf codé en R",
+       x = "Taille du texte (n)",
+       y = "Temps d'exécution (secondes)") +
+  theme_minimal()
+
+ggplot(result_df_naive_Rcpp, aes(x = size, y = time_taken)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE, color = "blue") +
+  labs(title = "Temps d'exécution de l'algorithme naïf codé en C++",
+       x = "Taille du texte (n)",
+       y = "Temps d'exécution (secondes)") +
+  theme_minimal()
+```
+
+```{r, echo=FALSE}
+cat("En moyenne, l'algorithme implémenté en Cpp est", round(mean(results_naive_R/results_naive_Rcpp)), "plus rapide que celui implémenté en R.")
+```
+
+
+
+# Solutions améliorées pour le pattern matching
+
+Le pattern matching naïf qui est facile à implémenter, devient rapidement inefficace lorsque la taille des textes ou le nombre de motifs à rechercher augmente. Pour pallier les limites de cette approche bruteforce, plusieurs algorithmes optimisés ont été développés : les algorithmes de Boyer-Moore et Aho-Corasick qui apportent chacun des optimisations significatives en s’appuyant sur des principes différents.
+
+## Algorithme d'Aho-Corasick
+
+L'algorithme d'Aho Corasick est conçu pour rechercher efficacement plusieurs motifs simultanément dans un texte. L’idée-clé est de regrouper tous les motifs dans une seule structure de données optimisée, permettant de rechercher tous les motifs en un seul parcours linéaire du texte. Il fonctionne en trois phases :
+\begin{enumerate}
+  \item Construction d’un automate fini (sous forme de trie) : cela permet d’organiser les motifs dans une structure hiérarchique qui capture les relations entre les préfixes des motifs.
+  \item Propagation des liens “fail” : cela permet de gérer les situations où un caractère dans le texte ne correspond pas à un caractère attendu dans le trie. Au lieu de revenir à l’état racine et de recommencer la recherche, un lien “fail” est utilisé pour sauter intelligemment vers un autre état partiellement correct dans le trie
+  \item Recherche dans le texte : Le texte est parcouru caractère par caractère, et à chaque caractère, le trie est utilisé pour déterminer si un motif a été trouvé. En cas de non-correspondance, les liens “fail” permettent de sauter aux états pertinents pour poursuivre la recherche.
+\end{enumerate}
+
+```{r}
+n <- 1000
+num_replacements <- 25
+dictionary <- c("cats", "dogs", "car", "distance")
+text <- create_long_string(n, num_replacements, dictionary)
+```
+
+```{r}
+res <- aho_corasick(text, dictionary)
+for (i in 1:length(res)) {
+  cat("Pattern :", unlist(res[[i]]$pattern), 
+      "| Positions :", unlist(res[[i]]$positions),"\n")
+}
+```
+
+### Complexité théorique de l'algorithme d'Aho-Corasick
+Prenons : 
+\begin{itemize}
+  \item un texte $T$ de longueur $n$ : $T = t_1t_2 \dots t_n$ avec $t_i$ un charactère
+  \item un ensemble de motifs (patterns) $p$ de longeur $m$ : $P = \{ p_1, p_2, \dots , p_m \}$ où chaque $p_i$ est de longueur $m_i$
+  \item $M = \sum_{i=1}^m m_i$ la somme des longueurs des motifs 
+\end{itemize}
+
+Nous allons décomposer la compléxité suivant les trois phases de l'algorithme :
+\begin{enumerate}
+  \item Lors de la construction de la structure de type Trie, chaque motif est inséré caractère par caractère dans un arbre : pour un motif de longueur $m_i$, chaque caractère est soit suivi dans une branche existante (coût constant), soit inséré comme un nouveau nœud (également en temps constant). Donc le coût d’insertion d’un seul motif est en $O(m_i)$. 
+
+En répétant cette opération pour l’ensemble des motifs, on obtient une complexité totale de : $\sum_{i=1}^m O(m_i) = O(M)$
+\item Ensuite, on construit les liens "fail" à l’aide d’un parcours en largeur du trie. Cette phase est également linéaire par rapport au nombre total de nœuds du trie, soit au plus proportionnel à M.
+
+Chaque nœud est visité une seule fois, et pour chaque transition, on calcule le lien "fail" en remontant au plus jusqu’à la racine. Ces montées sont amorties grâce à la structure du Trie : on ne monte jamais trop souvent et on ne remonte jamais plus que la hauteur du Trie (ce qui est borné par la taille des motifs). Ainsi, cette phase reste en $O(M)$
+\item La recherche s’effectue en parcourant chaque caractère du texte exactement une fois, en suivant les transitions dans le trie. À chaque position, soit on avance dans l’automate (cas le plus fréquent), soit on remonte via les liens de défaillance, ce qui est amorti constant. Pour chaque caractère, le nombre total de transitions (avancées ou échecs) est borné, ce qui donne une complexité en $O(n)$.
+\end{enumerate}
+
+### Complexité empirique de l'algorithme d'Aho-Corasick
+
+```{r, echo=FALSE}
+test_AC_R <- function(n, num_replacements, dictionary) {
+  long_string <- create_long_string(n, num_replacements, dictionary)
+
+  start_time <- Sys.time()
+  matches <- aho_corasick(long_string, dictionary)
+  end_time <- Sys.time()
+  return(end_time - start_time)
+}
+
+test_AC_Rcpp <- function(n, num_replacements, dictionary) {
+  long_string <- create_long_string(n, num_replacements, dictionary)
+
+  start_time <- Sys.time()
+  matches <- aho_corasick_Rcpp(long_string, dictionary)
+  end_time <- Sys.time()
+  return(end_time - start_time)
+}
+```
+
+```{r, echo=FALSE}
+num_replacements <- 25
+dictionary <- c("cats", "dogs", "car", "distance")
+
+sizes <- seq(1000, 100000, by = 1000)
+results_AC_R <- sapply(sizes, function(size) {
+  test_AC_R(n = size, num_replacements, dictionary)
+})
+results_AC_Rcpp <- sapply(sizes, function(size) {
+  test_AC_Rcpp(n = size, num_replacements, dictionary)
+})
+
+result_df_AC_R <- data.frame(size = sizes, time_taken = results_AC_R)
+result_df_AC_Rcpp <- data.frame(size = sizes, time_taken = results_AC_Rcpp)
+
+
+# Tracer le graphe pour visualiser la linéarité
+ggplot(result_df_AC_R, aes(x = size, y = time_taken)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE, color = "blue") +
+  labs(title = "Temps d'exécution de l'algorithme d'Aho-Corasick codé en R",
+       x = "Taille du texte (n)",
+       y = "Temps d'exécution (secondes)") +
+  theme_minimal()
+
+ggplot(result_df_AC_Rcpp, aes(x = size, y = time_taken)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE, color = "blue") +
+  labs(title = "Temps d'exécution de l'algorithme d'Aho-Corasick codé en C++",
+       x = "Taille du texte (n)",
+       y = "Temps d'exécution (secondes)") +
+  theme_minimal()
+```
+
+```{r, echo=FALSE}
+cat("En moyenne, l'algorithme implémenté en Cpp est", round(mean(results_AC_R/results_AC_Rcpp)), "plus rapide que celui implémenté en R.")
+```
+
+En fixant le dictionnaire, donc M, nous voyons avec les graphes que la compléxité est linéaire en $n$, longueur du texte.
+
+```{r, echo=FALSE}
+num_replacements <- 25
+n <- 10000
+generate_random_words <- function(n = 200, min_length = 8, max_length = 8) {
+  words <- character(n)
+  for (i in seq_len(n)) {
+    len <- sample(min_length:max_length, 1)
+    word <- paste0(sample(letters, len, replace = TRUE), collapse = "")
+    words[i] <- word
+  }
+  return(words)
+}
+
+sizes <- seq(10, 500, by = 10)
+results_AC_R <- sapply(sizes, function(size) {
+  test_AC_R(n, num_replacements, dictionary = generate_random_words(size))
+})
+results_AC_Rcpp <- sapply(sizes, function(size) {
+  test_AC_Rcpp(n, num_replacements, dictionary = generate_random_words(size))
+})
+
+result_df_AC_R <- data.frame(size = sizes, time_taken = results_AC_R)
+result_df_AC_Rcpp <- data.frame(size = sizes, time_taken = results_AC_Rcpp)
+
+
+# Tracer le graphe pour visualiser la linéarité
+ggplot(result_df_AC_R, aes(x = size, y = time_taken)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE, color = "blue") +
+  labs(title = "Temps d'exécution de l'algorithme d'Aho-Corasick codé en R",
+       x = "Nombre de mots de longueur 8 (M)",
+       y = "Temps d'exécution (secondes)") +
+  theme_minimal()
+
+ggplot(result_df_AC_Rcpp, aes(x = size, y = time_taken)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE, color = "blue") +
+  labs(title = "Temps d'exécution de l'algorithme d'Aho-Corasick codé en C++",
+       x = "Nombre de mots de longueur 8 (M)",
+       y = "Temps d'exécution (secondes)") +
+  theme_minimal()
+```
+
+En fixant maintenant la longueur $n$ du texte, nous sommes en train d'évaluer la compléxité du prétraitement, c'est à dire la création du Trie et la propagation des liens "fails". Nous voyons bien avec les graphes que la compléxité est linéaire en $M$, somme des longueurs des motifs.
+
+## Algorithme de Boyer-Moore
+
+Contrairement à l’algorithme naïf (qui compare le motif caractère par caractère de gauche à droite), Boyer-Moore exploite des astuces pour éviter un grand nombre de comparaisons inutiles. Il compare les caractères de droite à gauche dans le motif, et lorsqu'il n'y a pas de correspondance, il effectue un saut optimisé vers la droite dans le texte. 
+
+L’algorithme repose sur deux heuristiques principales :
+
+1. Heuristique du mauvais caractère (bad character rule)
+
+Lorsqu’il y a un caractère dans le texte qui ne correspond pas à celui du motif, Boyer-Moore regarde où ce caractère apparaît dans le motif. Il décale le motif de sorte à aligner la dernière occurrence de ce caractère dans le motif avec sa position dans le texte. Si le caractère n’existe pas dans le motif, on peut décaler de toute la longueur.
+
+Exemple :
+Texte : a needel in a haystack
+Motif : needle
+
+Texte : a needel in a haystack
+Motif :   needle
+
+2. Heuristique du bon suffixe (good suffix rule)
+
+Si une partie du motif a bien correspondu avant une erreur, Boyer-Moore essaie de réutiliser cette information. Il cherche s’il existe une autre occurrence de ce suffixe dans le motif, ou un préfixe du motif qui pourrait correspondre. Cela permet souvent de sauter encore plus loin.
+
+Çes deux heuristiques permettent de sauter des sections de texte et d'effectuer des recherches plus rapide que l'algorithme naïf par exemple. 
+
+### Complexité théorique de l'algorithme de Boyer-Moore
+
+La phase de prétraitement est la construction des tables de saut pour les deux heuristiques. Soit $m$ la longueur du motif.
+Pour l'heuristique du mauvais caractère, on crée une table qui, pour chaque caractère de l'alphabet, donne la dernière position où il apparaît dans le motif. La complexité de cette règle est celle du parcours du motif : $O(m)$.
+Pour l'heuristique du bon suffixe, on construit une table de décalage basée sur les suffixes du motif. Cela demande de parcourir le motif plusieurs fois, mais dans un nombre borné d’étapes linéaires : $O(m)$.
+
+Donc la compléxité de la phase de prétraitement est en $O(m)$
+
+Pour la phase de recherche, on distingue deux cas, le meilleur cas et le pire cas.
+
+Pour le meilleur cas, l’algorithme peut sauter de m caractères à chaque étape, c'est à dire qu’on effectue environ n/m comparaisons seulement.
+Donc la compléxité est en $O(n/m)$
+
+Exemple :
+Motif : "xyz"
+Texte : "aaaaaaaaaaaaaaaaaaaaxyz"
+Dans, l'exemple, à chaque itération, le motif est décalé de 3 par l'heuristique du mauvais caractère.
+
+
+Pour le pire cas, l’algorithme ne peut décaler que de un charactère par itération, c'est à dire qu’on effectue environ n*m comparaisons.
+Donc la compléxité est en $O(n*m)$
+
+Exemple :
+Motif : "aaa"
+Texte : "aaaaaaaaaaa"
+
+Dans, l'exemple, à chaque itération, le motif est décalé de 1 par l'heuristique du bon suffixe.
+
+### Complexité empirique de l'algorithme de Boyer-Moore
+
+#### Dans le cas général
+
+```{r, echo=FALSE}
+test_BM_R <- function(n, num_replacements, dictionary) {
+  long_string <- create_long_string(n, num_replacements, dictionary)
+
+  start_time <- Sys.time()
+  matches <- boyer_moore_search_R(long_string, dictionary)
+  end_time <- Sys.time()
+  return(end_time - start_time)
+}
+
+test_BM_Rcpp <- function(n, num_replacements, dictionary) {
+  long_string <- create_long_string(n, num_replacements, dictionary)
+
+  start_time <- Sys.time()
+  matches <- boyer_moore_search_Rcpp(long_string, dictionary)
+  end_time <- Sys.time()
+  return(end_time - start_time)
+}
+```
+
+```{r, echo=FALSE}
+num_replacements <- 25
+dictionary <- "cats"
+
+sizes <- seq(1000, 100000, by = 1000)
+results_BM_R <- sapply(sizes, function(size) {
+  test_BM_R(n = size, num_replacements, dictionary)
+})
+results_BM_Rcpp <- sapply(sizes, function(size) {
+  test_BM_Rcpp(n = size, num_replacements, dictionary)
+})
+
+result_df_BM_R <- data.frame(size = sizes, time_taken = results_BM_R)
+result_df_BM_Rcpp <- data.frame(size = sizes, time_taken = results_BM_Rcpp)
+
+
+# Tracer le graphe pour visualiser la linéarité
+ggplot(result_df_BM_R, aes(x = size, y = time_taken)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE, color = "blue") +
+  ylim(0, 0.04) +
+  labs(title = "Temps d'exécution de l'algorithme de Boyer-Moore codé en R",
+       x = "Taille du texte (n)",
+       y = "Temps d'exécution (secondes)") +
+  theme_minimal()
+
+ggplot(result_df_BM_Rcpp, aes(x = size, y = time_taken)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE, color = "blue") +
+  ylim(0, 0.00015) +
+  labs(title = "Temps d'exécution de l'algorithme de Boyer Moore codé en C++",
+       x = "Taille du texte (n)",
+       y = "Temps d'exécution (secondes)") +
+  theme_minimal()
+```
+
+#### Dans le meilleur cas 
+
+```{r, echo=FALSE}
+# Fonction pour générer un texte sans le motif (meilleur cas)
+generate_best_case_text <- function(n, pattern) {
+  pattern_chars <- unique(strsplit(pattern, "")[[1]])
+  alphabet <- letters[!letters %in% pattern_chars]
+  filler <- if (length(alphabet) > 0) alphabet[1] else "z"
+  tmp <- paste(rep(filler, n), collapse = "")
+  paste(c(tmp,pattern), collapse = "")
+}
+
+# Évalue le temps d’exécution de Boyer-Moore selon m
+evaluate_boyer_moore_best_case_by_m <- function(sizes, m_values, algo_func) {
+  results <- data.frame(size = numeric(), motif_length = numeric(), time_taken = numeric())
+  
+  for (m in m_values) {
+    # On crée un motif artificiel de m caractères
+    motif <- paste(rep("a", m), collapse = "")
+    
+    for (n in sizes) {
+      text <- generate_best_case_text(n, motif)
+      
+      start_time <- Sys.time()
+      algo_func(text, motif)
+      end_time <- Sys.time()
+      
+      duration <- as.numeric(difftime(end_time, start_time, units = "secs"))
+      
+      results <- rbind(results, data.frame(size = n, motif_length = m, time_taken = duration))
+    }
+  }
+  
+  return(results)
+}
+
+
+sizes <- seq(1000, 100000, by = 1000)
+m_values <- c(4, 8, 16, 32, 64)
+
+result_df_BM_best <- evaluate_boyer_moore_best_case_by_m(sizes, m_values, boyer_moore_search_Rcpp)
+
+ggplot(result_df_BM_best, aes(x = size, y = time_taken, color = factor(motif_length))) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE) +  # <- ici on laisse ggplot gérer la couleur/groupement
+  ylim(0, 7.5e-05) +
+  labs(
+    title = "Meilleur cas : Complexité O(n/m) de Boyer-Moore",
+    x = "Taille du texte (n)",
+    y = "Temps d'exécution (secondes)",
+    color = "Longueur du motif (m)"
+  ) +
+  theme_minimal()
+```
+Dans le meilleur des cas, on retrouve bien la compléxité en $O(n/m)$.
+
+#### Dans le pire cas 
+
+```{r, echo=FALSE}
+# Génère un texte qui simule le pire cas pour Boyer-Moore (mêmes lettres répétées)
+generate_worst_case_text <- function(n, pattern) {
+  paste(rep(substr(pattern, 1, 1), n), collapse = "")
+}
+
+# Évalue le temps d’exécution de Boyer-Moore selon m dans le pire des cas
+evaluate_boyer_moore_worst_case_by_m <- function(sizes, m_values, algo_func) {
+  results <- data.frame(size = numeric(), motif_length = numeric(), time_taken = numeric())
+  
+  for (m in m_values) {
+    # Motif très répétitif (pire cas typique pour Boyer-Moore)
+    motif <- paste(rep("a", m), collapse = "")
+    
+    for (n in sizes) {
+      text <- generate_worst_case_text(n, motif)
+      
+      start_time <- Sys.time()
+      algo_func(text, motif)
+      end_time <- Sys.time()
+      
+      duration <- as.numeric(difftime(end_time, start_time, units = "secs"))
+      
+      results <- rbind(results, data.frame(size = n, motif_length = m, time_taken = duration))
+    }
+  }
+  
+  return(results)
+}
+
+sizes <- seq(1000, 100000, by = 1000)
+m_values <- c(4, 8, 16, 32, 64)
+
+result_df_BM_worst <- evaluate_boyer_moore_worst_case_by_m(sizes, m_values, boyer_moore_search_Rcpp)
+
+ggplot(result_df_BM_worst, aes(x = size, y = time_taken, color = factor(motif_length))) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE) +
+  ylim(0, 0.004) +
+  labs(title = "Pire cas : Complexité O(n × m) de Boyer-Moore",
+       x = "Taille du texte (n)",
+       y = "Temps d'exécution (secondes)",
+       color = "Longueur du motif (m)") +
+  theme_minimal()
+```
+
+Dans le pire des cas, on retrouve bien la compléxité en $O(n\times m)$.
+
+# Conclusion
+
+
