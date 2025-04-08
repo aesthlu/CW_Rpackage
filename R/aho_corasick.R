@@ -81,7 +81,7 @@ aho_corasick <- function(text, patterns) {
     
     # Fusionner les résultats sous forme de liste
     matches <- lapply(names(result_list), function(pattern) {
-      list(pattern = pattern, positions = result_list[[pattern]])
+      list(pattern = pattern, positions = unlist(result_list[[pattern]]))
     })
     
     return(matches)
