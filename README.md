@@ -57,6 +57,42 @@ Then, load the package:
 library(CWRpackage)
 ```
 
+Moreover, define a function to create string for testing below
+
+``` r
+create_long_string <- function(n, num_replacements, dictionary) {
+  long_string <- paste0(sample(letters, n, replace = TRUE), collapse = "")
+  
+  # Generate positions with at least 8 characters apart
+  positions <- numeric(num_replacements)
+  positions[1] <- sample(1:(n - 5), 1)  # First position
+  
+  for (i in 2:num_replacements)
+  {
+    repeat 
+    {
+      pos <- sample(1:(n - 5), 1)  # Choose a random position
+      if (all(abs(pos - positions[1:(i-1)]) >= 8)) # Ensure distance >= 8
+      {  
+        positions[i] <- pos
+        break
+      }
+    }
+  }
+  positions <- sort(positions)
+  
+  # Replace substrings with dictionary words
+  for (i in 1:num_replacements)
+  {
+    start_pos <- positions[i]
+    word <- sample(dictionary, 1)  # Pick a random word
+    substr(long_string, start_pos, start_pos + nchar(word) - 1) <- word
+  }
+  
+  return(long_string)
+}
+```
+
 ------------------------------------------------------------------------
 
 <a id="ex"></a>
