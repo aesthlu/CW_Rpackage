@@ -534,4 +534,4 @@ Dans le pire des cas, on retrouve bien la compléxité en $O(n\times m)$.
 
 # Conclusion
 
-
+Dans ce projet, nous avons vu deux algorithmes de pattern matching : celui d'Aho-Corasick qui permet le multi-pattern matching avec une compléxité linéaire et celui de Boyer-Moore qui permet dans le meilleur des cas une compléxité en $O(n/m)$ et dans le pire des cas en $O(m*n)$. Il existe un algorithme qui s'inspire des deux : c'est l'algorithme de Commentz-Walter qui permet une multi-recherche de motifs en appliquant le principe de Boyer-Moore.
