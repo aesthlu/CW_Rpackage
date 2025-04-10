@@ -97,7 +97,7 @@ for (i in 1:length(res)) {
     ##  Pattern : dogs | Positions : 260 277 506 585 609 658 715 964 
 
 
-### Boyyer-Moore algorithm 
+### Boyer-Moore algorithm 
 
 ``` r
 n <- 1000
