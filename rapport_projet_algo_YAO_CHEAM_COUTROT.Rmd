@@ -141,6 +141,7 @@ result_df_naive_Rcpp <- data.frame(size = sizes, time_taken = results_naive_Rcpp
 ggplot(result_df_naive_R, aes(x = size, y = time_taken)) +
   geom_point() +
   geom_smooth(method = "lm", se = FALSE, color = "blue") +
+  ylim(0,0.15) + 
   labs(title = "Temps d'exécution de l'algorithme naïf codé en R",
        x = "Taille du texte (n)",
        y = "Temps d'exécution (secondes)") +
@@ -149,6 +150,7 @@ ggplot(result_df_naive_R, aes(x = size, y = time_taken)) +
 ggplot(result_df_naive_Rcpp, aes(x = size, y = time_taken)) +
   geom_point() +
   geom_smooth(method = "lm", se = FALSE, color = "blue") +
+    ylim(0,2e-04) + 
   labs(title = "Temps d'exécution de l'algorithme naïf codé en C++",
        x = "Taille du texte (n)",
        y = "Temps d'exécution (secondes)") +
@@ -250,6 +252,7 @@ result_df_AC_Rcpp <- data.frame(size = sizes, time_taken = results_AC_Rcpp)
 ggplot(result_df_AC_R, aes(x = size, y = time_taken)) +
   geom_point() +
   geom_smooth(method = "lm", se = FALSE, color = "blue") +
+  ylim(0,0.3) + 
   labs(title = "Temps d'exécution de l'algorithme d'Aho-Corasick codé en R",
        x = "Taille du texte (n)",
        y = "Temps d'exécution (secondes)") +
@@ -258,6 +261,7 @@ ggplot(result_df_AC_R, aes(x = size, y = time_taken)) +
 ggplot(result_df_AC_Rcpp, aes(x = size, y = time_taken)) +
   geom_point() +
   geom_smooth(method = "lm", se = FALSE, color = "blue") +
+  ylim(0,0.0015) +
   labs(title = "Temps d'exécution de l'algorithme d'Aho-Corasick codé en C++",
        x = "Taille du texte (n)",
        y = "Temps d'exécution (secondes)") +
@@ -545,4 +549,5 @@ Dans le pire des cas, on retrouve bien la compléxité en $O(n\times m)$.
 
 # Conclusion
 
-Dans ce projet, nous avons vu deux algorithmes de pattern matching : celui d'Aho-Corasick qui permet le multi-pattern matching avec une compléxité linéaire et celui de Boyer-Moore qui permet dans le meilleur des cas une compléxité en $O(n/m)$ et dans le pire des cas en $O(m*n)$. Il existe un algorithme qui s'inspire des deux : c'est l'algorithme de Commentz-Walter qui permet une multi-recherche de motifs en appliquant le principe de Boyer-Moore.
+Compte tenu de l'efficacité et des capacités des algorithmes d'Aho-Corasick et de Boyer-Moore, il convient également de mentionner l'algorithme de \textbf{Commentz-Walter} qui s'appuie sur les principes d'Aho-Corasick et de Boyer-Moore, offrant ainsi une approche avancée de la correspondance des chaînes de caractères.
+   Chacun de ces algorithmes offre des avantages uniques qui peuvent être exploités en fonction des exigences spécifiques de l'application.
