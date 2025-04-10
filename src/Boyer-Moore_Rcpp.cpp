@@ -6,6 +6,7 @@
 using namespace Rcpp;
 
 // Prétraitement pour la Bad Character Rule
+// [[Rcpp::export]]
 void badCharacterHeuristic(const std::string &pattern, std::vector<int> &badChar) {
   int m = pattern.size();
   badChar.assign(256, -1); // 256 pour tous les caractères ASCII
@@ -16,6 +17,7 @@ void badCharacterHeuristic(const std::string &pattern, std::vector<int> &badChar
 }
 
 // Prétraitement pour la Good Suffix Rule
+// [[Rcpp::export]]
 void goodSuffixHeuristic(const std::string &pattern, std::vector<int> &goodSuffix, std::vector<int> &suffix) {
   int m = pattern.size();
   suffix.assign(m, -1);
