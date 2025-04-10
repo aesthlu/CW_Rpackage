@@ -98,27 +98,31 @@ create_long_string <- function(n, num_replacements, dictionary) {
 <a id="ex"></a>
 
 ## Examples
-
-### Naive pattern matching algorithm 
+We first create a long string to compare our different algorithms.
 
 ``` r
 n <- 1000
 num_replacements <- 25
 dictionary <- c("cats", "dogs", "car", "distance")
 text <- create_long_string(n, num_replacements, dictionary)
-naive_pattern_matching(text, "cats")
 ```
 
-    ##  [1] 367 489 551
+### Naive pattern matching algorithm 
+
+``` r
+naive_pattern_matching(text, "cats")
+```
+    ## [1]  32  93 455
+
+``` r
+naive_pattern_matching_Rcpp(text, "cats")
+```
+    ## [1]  32  93 455
 
 
 ### Aho-Corasick algorithm
 
 ``` r
-n <- 1000
-num_replacements <- 25
-dictionary <- c("cats", "dogs", "car", "distance")
-text <- create_long_string(n, num_replacements, dictionary)
 
 res <- aho_corasick(text, dictionary)
 for (i in 1:length(res)) {
@@ -127,21 +131,34 @@ for (i in 1:length(res)) {
 }
 ```
 
-    ##  Pattern : cats | Positions : 79 171 404 482 707 796 946 
-    ##  Pattern : car | Positions : 129 207 268 323 441 452 565 
-    ##  Pattern : distance | Positions : 220 929 956 
-    ##  Pattern : dogs | Positions : 260 277 506 585 609 658 715 964 
+    ##  Pattern : distance | Positions : 12 76 127 180 194 668 718 751 
+    ##  Pattern : cats | Positions : 32 93 455 
+    ##  Pattern : dogs | Positions : 236 328 380 591 622 685 912 970 
+    ##  Pattern : car | Positions : 500 727 738 779 794 832 
+
+``` r
+res <- aho_corasick(text, dictionary)
+for (i in 1:length(res)) {
+  cat("Pattern :", (res[[i]]$pattern), 
+      "| Positions :", (res[[i]]$positions),"\n")
+}
+```
+
+    ##  Pattern : distance | Positions : 12 76 127 180 194 668 718 751 
+    ##  Pattern : cats | Positions : 32 93 455 
+    ##  Pattern : dogs | Positions : 236 328 380 591 622 685 912 970 
+    ##  Pattern : car | Positions : 500 727 738 779 794 832 
 
 
 ### Boyer-Moore algorithm 
 
 ``` r
-n <- 1000
-num_replacements <- 25
-dictionary <- c("cats", "dogs", "car", "distance")
-text <- create_long_string(n, num_replacements, dictionary)
+boyer_moore_search_R(text, "cat")
+```
+    ##  [1]  32  93 455
 
+``` r
 boyer_moore_search_Rcpp(text, "cat")
 ```
 
-    ##  [1] 159 279 374 544 699 755 765 823 846 967
+    ##  [1]  32  93 455
