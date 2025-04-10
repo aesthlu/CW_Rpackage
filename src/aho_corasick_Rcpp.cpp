@@ -6,7 +6,6 @@
 using namespace Rcpp;
 using namespace std;
 
-// [[Rcpp::export]]
 struct TrieNode {
   unordered_map<char, TrieNode*> children;
   TrieNode* fail;
@@ -15,7 +14,6 @@ struct TrieNode {
   TrieNode() : fail(nullptr) {}
 };
 
-// [[Rcpp::export]]
 class AhoCorasick {
 public:
   AhoCorasick(const vector<string>& patterns) {
