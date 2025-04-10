@@ -184,8 +184,8 @@ text <- create_long_string(n, num_replacements, dictionary)
 ```{r}
 res <- aho_corasick(text, dictionary)
 for (i in 1:length(res)) {
-  cat("Pattern :", unlist(res[[i]]$pattern), 
-      "| Positions :", unlist(res[[i]]$positions),"\n")
+  cat("Pattern :", (res[[i]]$pattern), 
+      "| Positions :", (res[[i]]$positions),"\n")
 }
 ```
 
@@ -337,6 +337,17 @@ Motif :   needle
 Si une partie du motif a bien correspondu avant une erreur, Boyer-Moore essaie de réutiliser cette information. Il cherche s’il existe une autre occurrence de ce suffixe dans le motif, ou un préfixe du motif qui pourrait correspondre. Cela permet souvent de sauter encore plus loin.
 
 Çes deux heuristiques permettent de sauter des sections de texte et d'effectuer des recherches plus rapide que l'algorithme naïf par exemple. 
+
+```{r}
+n <- 1000
+num_replacements <- 25
+dictionary <- c("cats", "dogs", "car", "distance")
+text <- create_long_string(n, num_replacements, dictionary)
+```
+
+```{r}
+boyer_moore_search_Rcpp(text, "cat")
+```
 
 ### Complexité théorique de l'algorithme de Boyer-Moore
 
