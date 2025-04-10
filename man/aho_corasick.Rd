@@ -2,7 +2,7 @@
 % Please edit documentation in R/aho_corasick.R
 \name{aho_corasick}
 \alias{aho_corasick}
-\title{Commentz-Walter multiple pattern matching algorithm using R}
+\title{Aho-Corasick multiple pattern matching algorithm using R}
 \usage{
 aho_corasick(text, patterns)
 }
@@ -15,6 +15,5 @@ aho_corasick(text, patterns)
 A list of integers indicating the starting positions of each match (1-based index).
 }
 \description{
-Searches for all occurrences of multiple patterns in a given text using the Aho-Corasick algorithm, 
-which combines Boyer-Moore-like heuristics for efficient searching.
+Searches for all occurrences of multiple patterns in a given text using the Aho-Corasick algorithm.
 }
